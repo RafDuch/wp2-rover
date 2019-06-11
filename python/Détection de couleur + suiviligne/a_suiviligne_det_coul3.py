@@ -12,14 +12,17 @@ address = 0x12
 video_capture = cv2.VideoCapture(0)
 video_capture.set(3, 750)
 video_capture.set(4, 300)
+video_capture.set(cv2.CAP_PROP_AUTOFOCUS, 0) # turn the autofocus off
 
 # Fonction distance euclidienne
-distance_eucli = lambda v1,v2 : (v1[0]-v2[0])**2+(v1[1]-v2[1])**2
+distance_eucli = lambda v1,v2 : (v1[0]-v2[0])**2+(v1[1]-v2[1])**2+(v1[2]-v2[2])**2
 
 
 # Dictionnaire avec les couleurs des pastilles (espace rgb)
 colors = OrderedDict({
-                      "noir": (0, 0, 0),
+                      "noir": (47,47,47),
+                      "blanc": (155,155,155),
+                      "calcaire": (129,125,113),
                       "bois": (104,81,49),
                       "bleu": (58,102,115),
                       "vert": (117,134,98),
@@ -31,8 +34,7 @@ colors = OrderedDict({
                       "orange": (176,97,41),
                       "bleuciel":(123,128,134),
                       "violet": (42,26,65),
-                      "marron": (95,68,49)
-                      
+                      "marron": (95,68,49)   
                       
                     })
  
@@ -49,6 +51,8 @@ lab_colors = cv2.cvtColor(lab_colors, cv2.COLOR_RGB2LAB)
 
 # Dictionnaire avec l'indice des couleurs des pastilles
 colors = {            "noir": 0,
+                      "blanc": 0,
+                      "calcaire": 0,
                       "bois": 1,
                       "bleu": 2,
                       "vert": 3,
@@ -174,10 +178,10 @@ while(True):
             
                 # Calculer la couleur de la pastille la plus proche
                 # de ces valeurs moyennes
-                # On prend la distance euclidienne dans le plan a*b
+                # On prend la distance euclidienne dans l'espace L*a*b
                 minDist = (np.inf, None)
                 for (i, lab_color_pastille) in enumerate(lab_colors):
-                    d = distance_eucli(lab_color_pastille[0][1:], mean[1:])
+                    d = distance_eucli(lab_color_pastille[0], mean)
                     if d < minDist[0]:
                         minDist = (d, i)
                 color = colorNames[minDist[1]]
