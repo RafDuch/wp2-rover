@@ -13,7 +13,7 @@ while(True):
     # Prises des frames
     ret, img = video_capture.read()
     frame = img[150:350, 0:750]
-
+    
     # Passage en niveaux de gris
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     # Filtre Gaussien
@@ -25,17 +25,16 @@ while(True):
     # Enleve les detections de ligne accidentelles
     mask = cv2.erode(thresh1, None, iterations=2)
     mask = cv2.dilate(mask, None, iterations=2)
+    
     # Determine les contours des "taches noires"
     _,contours,hierarchy = cv2.findContours(mask.copy(), 1, cv2.CHAIN_APPROX_NONE)
+    
     # Trouver les plus gros contours (s'il y en a)
+    
     if len(contours) > 0:
         c = max(contours, key=cv2.contourArea)
         M = cv2.moments(c)
         cx = int(M['m10']/M['m00'])
-        if cx < 325 :
-            pos_mil=0
-        else :
-            pos_mil =1
         cy = int(M['m01']/M['m00'])
         cv2.line(frame,(cx,0),(cx,400),(255,0,0),1)
         cv2.line(frame,(0,cy),(750,cy),(255,0,0),1)
