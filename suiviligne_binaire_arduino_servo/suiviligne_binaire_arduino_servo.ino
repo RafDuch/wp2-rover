@@ -19,9 +19,12 @@ bool arret_urgence = false; // variable booleene d arret d urgence
 int speed = 80;             //vitesse de base
 
 //Variable pour stocker l'angle du servomoteur par rapport à son horizontal
-int angle = 10;  //initialisation
-int angle_base = 0; //offset pour centre la référence de l'angle du servomoteur par rapport à la vertical du rover
+long t_servo = 0;
+long t_prec_servo = 0;
+int angle = 21;  //initialisation à 21 pour que angle_prec soit au minimum et pas en dessous
 int angle_prec = angle - 1;  //connaitre la direction d'avancement du balayage
+int angle_max = 170;//angle maximal pour le trajet du servomoteur (45 degré de plus que la ref)
+int angle_min = 20;//angle minimal pour le trajet du servomoteur 
 
 // on crée un objet de la librairie servo
 Servo servo;
@@ -50,49 +53,45 @@ int ADC_moyenne(int n)  //calcul de la moyenne des valeurs regitrés par le capt
   return ((int)(somme / n));
 }
 
-void servo (int angle, int angle_prec){
+void ecriture (int angle, int angle_prec, long t_prec_servo, long t_servo){
 
-  //centrer le offset sur la vertical du rover
-  angle = angle - angle_base;
-  angle_prec = angle_prec - angle_base;
-
-  if (angle<angle_max && angle>-angle_max){
-    if (angle>angle_prec){
-      angle_prec = angle;
-      angle = angle + 1; 
-      servo.write(angle);
+    if (angle<angle_max && angle>angle_min){
+      if (angle>angle_prec){
+        angle_prec = angle;
+        angle = angle + 1; 
+        servo.write(angle);
+      }
+      else {
+        angle_prec = angle;
+        angle = angle - 1;
+        servo.write(angle);
+      }
     }
-    else {
-      angle_prec = angle;
+    
+    else if (angle=angle_max){
+      angle_prec = angle_max;
       angle = angle - 1;
       servo.write(angle);
     }
-  }
-
-  else if (angle=angle_max){
-    angle_prec = angle_max;
-    angle = angle - 1;
-    servo.write(angle);
-  }
-
-  else if (angle=-angle_max){
-    angle_prec = -angle_max;
-    angle = angle + 1;
-    servo.write(angle);
-  }
-  
+    
+    else if (angle=angle_min){
+      angle_prec = angle_min;
+      angle = angle + 1;
+      servo.write(angle);
+    }
 }
 
-void receiveData(int byteCount, int angle, int angle_prec){
+void receiveData(int byteCount){
   arret_urgence = arreturgence();
   
   if (arret_urgence == false) { 
   
     while(Wire.available()) {
         dataReceived = Wire.read();
-        //Serial.println(dataReceived);
-        servo(angle,amgle_prec); //écrire le nouveau angle vers le servo en function du passé, DEPLACEMENT STATIQUE PAS DYNAMIQUE (balayage périodique qui ne dépend pas de l'environnement)
-        
+        if (millis() - t_prec_servo > 15){
+        ecriture(angle,angle_prec, t_prec_servo, t_servo); //écrire le nouveau angle vers le servo en function du passé, DEPLACEMENT STATIQUE PAS DYNAMIQUE (balayage périodique qui ne dépend pas de l'environnement)
+        t_prec_servo = millis();
+        }
         if (dataReceived == 0) {  
         Direction(speed-10,speed-10);
         }
@@ -158,5 +157,5 @@ void setup() {
 
 
 void loop() {
-receiveData(0, angle, angle_prec);
+  receiveData(0);
 }

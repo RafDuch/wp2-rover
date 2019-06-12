@@ -51,8 +51,8 @@ void Direction(int vitgauche, int vitdroite) {
 
 
 void receiveData(int bytecount) {
-  arret_urgence = arreturgence();
-  if (arret_urgence == false) {
+  //arret_urgence = arreturgence();
+  //if (arret_urgence == false) {
 
     while (Wire.available()) {
       data = Wire.read();//varie de 0 à 255 avec donc le milieu de l'image à 127. Cela revient à prendre en compte un pixel sur 3 dans l'image de départ
@@ -61,8 +61,8 @@ void receiveData(int bytecount) {
         if (data <= 127) {
           
             //data est la valeur comprise entre 0 et 255 représentant l'éloignement par rapport à l'origine en pixel ramené sur un octet...
-            vitG = 150 - data;
-            vitD = 150 + data;
+            vitG = 120 - data;
+            vitD = 120 + data;
             if (vitD > 255) {
               vitD = 255;
               vitD = 0;
@@ -72,8 +72,8 @@ void receiveData(int bytecount) {
          }
          else {
           data = data -128;
-          vitG = 150 + data;
-          vitD = 150 - data;
+          vitG = 120 + data;
+          vitD = 120 - data;
             if (vitG > 255) {
               vitG = 255;
               vitD = 0;
@@ -88,11 +88,11 @@ void receiveData(int bytecount) {
       }
     }
   }
-  else {
-    Direction(0, 0);
-  }
+  //else {
+   // Direction(0, 0);
+ // }
 
-}
+//}
 
 //configuration de la communication I2C entre les deux cartes
 void setup() {
