@@ -226,12 +226,13 @@ class Suivi_bin_couleurs :
                 # Sinon, communiquer
                 self.mesure_pastilles = ''
                 for i in range(len(self.colors)):
-                    self.mesure_pastilles + = str(xColors[i])+'\r\n'
-                    self.mesure_pastilles + = str(yColors[i])+'|r\n'
-                    self.mesure_pastilles + = str(nbColors[i])+'\r\n'
+                    self.mesure_pastilles += str(xColors[i])+'\r\n'
+                    self.mesure_pastilles += str(yColors[i])+'|r\n'
+                    self.mesure_pastilles += str(nbColors[i])+'\r\n'
 
             #Affichage a l ecran
         
-            #cv2.imshow('frame',frame)
-            #cv2.waitKey(10)
-    
+            cv2.imshow('frame',frame)
+            cv2.waitKey(10)
+l = Suivi_bin_couleurs()
+l.start_rover()
