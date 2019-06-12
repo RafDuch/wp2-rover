@@ -21,11 +21,10 @@ int speed = 80;             //vitesse de base
 //Variable pour stocker l'angle du servomoteur par rapport à son horizontal
 long t_servo = 0;
 long t_prec_servo = 0;
-int angle = 85;  //initialisation
-//int angle_base = 85; //offset pour centre la référence de l'angle du servomoteur par rapport à la vertical du rover
+int angle = 21;  //initialisation à 21 pour que angle_prec soit au minimum et pas en dessous
 int angle_prec = angle - 1;  //connaitre la direction d'avancement du balayage
-int angle_max = 130;//angle maximal pour le trajet du servomoteur (45 degré de plus que la ref)
-int angle_min = 40;//angle minimal pour le trajet du servomoteur 
+int angle_max = 170;//angle maximal pour le trajet du servomoteur (45 degré de plus que la ref)
+int angle_min = 20;//angle minimal pour le trajet du servomoteur 
 
 // on crée un objet de la librairie servo
 Servo servo;
@@ -56,8 +55,6 @@ int ADC_moyenne(int n)  //calcul de la moyenne des valeurs regitrés par le capt
 
 void ecriture (int angle, int angle_prec, long t_prec_servo, long t_servo){
 
-
-  if (t_servo - t_prec_servo > 2,0){
     if (angle<angle_max && angle>angle_min){
       if (angle>angle_prec){
         angle_prec = angle;
@@ -82,7 +79,6 @@ void ecriture (int angle, int angle_prec, long t_prec_servo, long t_servo){
       angle = angle + 1;
       servo.write(angle);
     }
-  }
 }
 
 void receiveData(int byteCount){
@@ -92,8 +88,10 @@ void receiveData(int byteCount){
   
     while(Wire.available()) {
         dataReceived = Wire.read();
+        if (millis() - t_prec_servo > 15){
         ecriture(angle,angle_prec, t_prec_servo, t_servo); //écrire le nouveau angle vers le servo en function du passé, DEPLACEMENT STATIQUE PAS DYNAMIQUE (balayage périodique qui ne dépend pas de l'environnement)
-        
+        t_prec_servo = millis();
+        }
         if (dataReceived == 0) {  
         Direction(speed-10,speed-10);
         }
@@ -159,7 +157,5 @@ void setup() {
 
 
 void loop() {
-  t_prec_servo = t_servo;
-  t_servo = millis();
-receiveData(0);
+  receiveData(0);
 }
