@@ -3,6 +3,7 @@ import cv2
 import smbus
 import time
 
+
 bus = smbus.SMBus(1)
 address = 0x12
 video_capture = cv2.VideoCapture(0)
