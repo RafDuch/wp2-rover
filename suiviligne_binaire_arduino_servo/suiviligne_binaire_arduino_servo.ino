@@ -20,9 +20,12 @@ int speed = 80;             //vitesse de base
 
 //Variable pour stocker l'angle du servomoteur par rapport à son horizontal
 long t_servo = 0;
+int t_prec = 0;
 long t_prec_servo = 0;
 int angle = 21;  //initialisation à 21 pour que angle_prec soit au minimum et pas en dessous
 int angle_prec = angle - 1;  //connaitre la direction d'avancement du balayage
+int temp_angle;
+int temp_angle_prec;
 int angle_max = 170;//angle maximal pour le trajet du servomoteur (45 degré de plus que la ref)
 int angle_min = 20;//angle minimal pour le trajet du servomoteur 
 
@@ -53,7 +56,7 @@ int ADC_moyenne(int n)  //calcul de la moyenne des valeurs regitrés par le capt
   return ((int)(somme / n));
 }
 
-void ecriture (int angle, int angle_prec, long t_prec_servo, long t_servo){
+int ecriture (int angle, int angle_prec, long t_prec_servo, long t_servo){
 
     if (angle<angle_max && angle>angle_min){
       if (angle>angle_prec){
@@ -79,6 +82,7 @@ void ecriture (int angle, int angle_prec, long t_prec_servo, long t_servo){
       angle = angle + 1;
       servo.write(angle);
     }
+    return(angle, angle_prec);
 }
 
 void receiveData(int byteCount){
@@ -88,8 +92,11 @@ void receiveData(int byteCount){
   
     while(Wire.available()) {
         dataReceived = Wire.read();
-        if (millis() - t_prec_servo > 15){
-        ecriture(angle,angle_prec, t_prec_servo, t_servo); //écrire le nouveau angle vers le servo en function du passé, DEPLACEMENT STATIQUE PAS DYNAMIQUE (balayage périodique qui ne dépend pas de l'environnement)
+        t_prec = millis();
+        if (t_prec - t_prec_servo > 15){
+        temp_angle,temp_angle_prec = ecriture(angle,angle_prec, t_prec_servo, t_servo); //écrire le nouveau angle vers le servo en function du passé, DEPLACEMENT STATIQUE PAS DYNAMIQUE (balayage périodique qui ne dépend pas de l'environnement)
+        angle = temp_angle;
+        angle_prec = temp_angle_prec;
         t_prec_servo = millis();
         }
         if (dataReceived == 0) {  
