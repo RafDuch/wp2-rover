@@ -3,7 +3,7 @@
 #define SLAVE_ADDRESS 0x12 // choix de l'adresse entre 0x03 et 0x77 en hexadecimal
 int dataReceived = 0;
 float x = 0.0;
-int vit = 0;
+
 
 // variables nécessaires pour faire fonctionner les moteurs du robot.
 int speedPin_M1 = 5;     //Choix de la vitesse M1
@@ -16,6 +16,12 @@ bool arret_urgence = false; // variable booléenne d'arrêt d'urgence
 int vitG = 0;
 int vitD = 0;
 int data = 0;
+int vit= 100;
+int data_max = 180;
+int data_mil = data_max/2;
+
+
+
 
 void sendData() {
   int envoi =  dataReceived ;
@@ -35,7 +41,7 @@ int ADC_moyenne(int n)
 
 bool arreturgence(){
   int ADC_SHARP = ADC_moyenne(20); 
-  if (ADC_SHARP > 900)
+  if (ADC_SHARP > 600)
   {arret_urgence = true;}
   else
   {arret_urgence = false;}
@@ -51,18 +57,17 @@ void Direction(int vitgauche, int vitdroite) {
 
 
 void receiveData(int bytecount) {
-  //arret_urgence = arreturgence();
-  //if (arret_urgence == false) {
+  arret_urgence = arreturgence();
+  if (arret_urgence == false) {
 
     while (Wire.available()) {
       data = Wire.read();//varie de 0 à 255 avec donc le milieu de l'image à 127. Cela revient à prendre en compte un pixel sur 3 dans l'image de départ
       
-      if (data != -1) {
-        if (data <= 127) {
+      if (data < data_mil) {
           
             //data est la valeur comprise entre 0 et 255 représentant l'éloignement par rapport à l'origine en pixel ramené sur un octet...
-            vitG = 120 - data;
-            vitD = 120 + data;
+            vitG = abs (vit - data);
+            vitD = vit + data;
             if (vitD > 255) {
               vitD = 255;
               vitD = 0;
@@ -71,9 +76,9 @@ void receiveData(int bytecount) {
             Direction(vitG, vitD);
          }
          else {
-          data = data -128;
-          vitG = 120 + data;
-          vitD = 120 - data;
+          data = data - data_mil;
+          vitG = vit + data;
+          vitD = abs (vit - data);
             if (vitG > 255) {
               vitG = 255;
               vitD = 0;
@@ -81,18 +86,14 @@ void receiveData(int bytecount) {
 
             Direction(vitG, vitD);
          }
-       }
-
+     }
+  }
+         
       else {
         Direction (0, 0);
       }
-    }
-  }
-  //else {
-   // Direction(0, 0);
- // }
+}
 
-//}
 
 //configuration de la communication I2C entre les deux cartes
 void setup() {
