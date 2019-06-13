@@ -28,8 +28,8 @@ int t_prec = 0;
 long t_prec_servo = 0;
 int angle = 85;  //initialisation à 21 pour que angle_prec soit au minimum et pas en dessous
 int angle_prec = angle - 1;  //connaitre la direction d'avancement du balayage
-int temp_angle;
-int temp_angle_prec;
+int temp_angle = angle;
+int temp_angle_prec = angle_prec;
 int angle_max = 170;//angle maximal pour le trajet du servomoteur (45 degré de plus que la ref)
 int angle_min = 20;//angle minimal pour le trajet du servomoteur 
 
@@ -98,13 +98,6 @@ void receiveData(int bytecount) {
   
   if (arreturgence() == false) {
 
- cnt +=1;
-  if (cnt >= 1000){
-    cnt = 0;
-    temp_angle,temp_angle_prec = ecriture(angle,angle_prec); //écrire le nouveau angle vers le servo en function du passé, DEPLACEMENT STATIQUE PAS DYNAMIQUE (balayage périodique qui ne dépend pas de l'environnement)
-    angle = temp_angle;
-    angle_prec = temp_angle_prec;
-  }
 
     while (Wire.available()) {
       //cnt+=1;
@@ -146,8 +139,6 @@ void receiveData(int bytecount) {
             }
             Direction(vitG, vitD);
          }
-
-         
     }
   }
         else {
@@ -167,9 +158,17 @@ void setup() {
   pinMode (directionPin_M2, OUTPUT);
   //pinMode (servo_pin,OUTPUT);
   servo.attach(10); //on choisit arbitrairement le pin PMW 10 pour écrire le signal de commande
-  //servo.write(angle); //centrer 
+  servo.write(angle); //centrer 
 }
 
 void loop() {
   receiveData(0);
+   cnt +=1;
+  if (cnt >= 100){
+    cnt = 0;
+    temp_angle,temp_angle_prec = ecriture(angle,angle_prec); //écrire le nouveau angle vers le servo en function du passé, DEPLACEMENT STATIQUE PAS DYNAMIQUE (balayage périodique qui ne dépend pas de l'environnement)
+    angle = temp_angle;
+    angle_prec = temp_angle_prec;
+  }
+
 }
