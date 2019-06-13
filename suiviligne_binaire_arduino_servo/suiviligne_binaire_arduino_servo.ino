@@ -6,7 +6,7 @@
 
 #define SLAVE_ADDRESS 0x12 // choix de l'adresse entre 0x03 et 0x77 en hexadecimal
 
-int dataReceived = 0;  //variable qui porte la commade déplacement de la Raspberry 
+int dataReceived = 10;  //variable qui porte la commade déplacement de la Raspberry 
 
 // variables nécessaires pour faire fonctionner les moteurs du robot.
 int speedPin_M1 = 5;     //Choix de la vitesse M1
