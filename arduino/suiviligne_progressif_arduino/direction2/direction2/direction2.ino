@@ -27,9 +27,7 @@ long t_servo = 0;
 int t_prec = 0;
 long t_prec_servo = 0;
 int angle = 85;  //initialisation à 21 pour que angle_prec soit au minimum et pas en dessous
-int angle_prec = angle - 1;  //connaitre la direction d'avancement du balayage
-int temp_angle = angle;
-int temp_angle_prec = angle_prec;
+int flag = 0;
 int angle_max = 170;//angle maximal pour le trajet du servomoteur (45 degré de plus que la ref)
 int angle_min = 20;//angle minimal pour le trajet du servomoteur 
 
@@ -56,33 +54,30 @@ bool  arreturgence(){
 }
 
 
-int ecriture (int angle, int angle_prec){
-
-    if (angle<angle_max && angle>angle_min){
-      if (angle>angle_prec){
-        angle_prec = angle;
+void ecriture (){
+    
+    if (angle<angle_max and angle>angle_min){
+      if (flag == 0){
         angle = angle + 10; 
         servo.write(angle);
       }
       else {
-        angle_prec = angle;
         angle = angle - 10;
         servo.write(angle);
       }
     }
     
     else if (angle>=angle_max){
-      angle_prec = angle_max;
+      flag = 1;
       angle = angle_max - 10;
       servo.write(angle);
     }
     
     else if (angle<=angle_min){
-      angle_prec = angle_min;
+      flag =0;
       angle = angle_min + 10;
       servo.write(angle);
     }
-    return(angle, angle_prec);
 }
 
 
@@ -95,21 +90,20 @@ void Direction(int vitgauche, int vitdroite) {
 
 
 void receiveData(int bytecount) {
+
+
+
   
-  if (arreturgence() == false) {
-
-
-    while (Wire.available()) {
-      //cnt+=1;
-      //t_prec = millis();
-      //if (cnt >= 500){//t_prec - t_prec_servo > 15){
-      //cnt = 0;
-      //temp_angle,temp_angle_prec = ecriture(angle,angle_prec); //écrire le nouveau angle vers le servo en function du passé, DEPLACEMENT STATIQUE PAS DYNAMIQUE (balayage périodique qui ne dépend pas de l'environnement)
-      //ecriture(angle,angle_prec);
-      //angle = temp_angle;
-      //angle_prec = temp_angle_prec;
-      //t_prec_servo = millis();
+    if (arreturgence() == false) {
+     /* cnt+=1;
+      if (cnt >= 500){
+      cnt = 0;
+      ecriture();}
       
+      t_prec = millis();
+*/
+
+    while (Wire.available()) {  
       
       data = Wire.read();//varie de 0 à 255 avec donc le milieu de l'image à 127. Cela revient à prendre en compte un pixel sur 3 dans l'image de départ 
       
@@ -163,12 +157,4 @@ void setup() {
 
 void loop() {
   receiveData(0);
-   cnt +=1;
-  if (cnt >= 100){
-    cnt = 0;
-    temp_angle,temp_angle_prec = ecriture(angle,angle_prec); //écrire le nouveau angle vers le servo en function du passé, DEPLACEMENT STATIQUE PAS DYNAMIQUE (balayage périodique qui ne dépend pas de l'environnement)
-    angle = temp_angle;
-    angle_prec = temp_angle_prec;
-  }
-
 }
