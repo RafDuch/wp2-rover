@@ -16,7 +16,7 @@ int vitG = 0;
 int vitD = 0;
 int data = 0;
 int vit = 110;
-int data_max = 180;
+int data_max = 100;
 int data_mil = data_max/2;
 
 int cnt = 0;
@@ -163,7 +163,7 @@ void setup() {
   pinMode (directionPin_M1, OUTPUT);
   pinMode (directionPin_M2, OUTPUT);
   //pinMode (servo_pin,OUTPUT);
-  servo.attach(10); //on choisit arbitrairement le pin PMW 5 pour écrire le signal de commande
+  servo.attach(10); //on choisit arbitrairement le pin PMW 10 pour écrire le signal de commande
   servo.write(angle); //centrer 
 }
 
