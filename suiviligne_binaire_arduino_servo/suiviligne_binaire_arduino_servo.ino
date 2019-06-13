@@ -14,14 +14,14 @@ int speedPin_M2 = 6;     //Choix de la vitesse M2
 int directionPin_M1 = 4;     //Choix du sens de rotation (avant ou arrière) moteur M1
 int directionPin_M2 = 7;     //Choix du sens de la rotation (avant ou arrière) pour le moteur M2
 
-//bool arret_urgence = false; // variable booleene d arret d urgence 
+bool arret_urgence = false; // variable booleene d arret d urgence 
 
 int speed = 80;             //vitesse de base
 
 //Variable pour stocker l'angle du servomoteur par rapport à son horizontal
-unsigned long temps;
-unsigned long temps_prec = 0;
-
+long t_servo = 0;
+int t_prec = 0;
+long t_prec_servo = 0;
 int angle = 21;  //initialisation à 21 pour que angle_prec soit au minimum et pas en dessous
 int angle_prec = angle - 1;  //connaitre la direction d'avancement du balayage
 int temp_angle;
@@ -56,7 +56,7 @@ int ADC_moyenne(int n)  //calcul de la moyenne des valeurs regitrés par le capt
   return ((int)(somme / n));
 }
 
-void ecriture (int angle, int angle_prec){
+int ecriture (int angle, int angle_prec, long t_prec_servo, long t_servo){
 
     if (angle<angle_max && angle>angle_min){
       if (angle>angle_prec){
@@ -82,19 +82,22 @@ void ecriture (int angle, int angle_prec){
       angle = angle + 1;
       servo.write(angle);
     }
+    return(angle, angle_prec);
 }
 
 void receiveData(int byteCount){
-  //arret_urgence = arreturgence();
+  arret_urgence = arreturgence();
   
-  //if (arret_urgence == false) { 
+  if (arret_urgence == false) { 
   
-    while(Wire.available() && arreturgence() == false) {
+    while(Wire.available()) {
         dataReceived = Wire.read();
-        temps = millis();
-        if (temps - temps_prec > 15){
-        ecriture(angle,angle_prec); //écrire le nouveau angle vers le servo en function du passé, DEPLACEMENT STATIQUE PAS DYNAMIQUE (balayage périodique qui ne dépend pas de l'environnement)
-        temps_prec = temps;
+        t_prec = millis();
+        if (t_prec - t_prec_servo > 15){
+        temp_angle,temp_angle_prec = ecriture(angle,angle_prec, t_prec_servo, t_servo); //écrire le nouveau angle vers le servo en function du passé, DEPLACEMENT STATIQUE PAS DYNAMIQUE (balayage périodique qui ne dépend pas de l'environnement)
+        angle = temp_angle;
+        angle_prec = temp_angle_prec;
+        t_prec_servo = millis();
         }
         if (dataReceived == 0) {  
         Direction(speed-10,speed-10);
@@ -128,19 +131,19 @@ void receiveData(int byteCount){
         }
 
     }
-  //}
-  Direction (0,0);  //arrêt si pas d'info de la Raspberry et arret d'urgence demande
+  }
+  else {Direction (0,0);}
     
  }
  
 bool arreturgence(){
     int ADC_SHARP = ADC_moyenne(20);
   if (ADC_SHARP > 900)
-  {return true;}
+  {arret_urgence = true;}
 
-  else {return false;}
+  else {arret_urgence = false;}
   
-//return(arret_urgence);
+return(arret_urgence);
 }
 
 
@@ -156,7 +159,7 @@ void setup() {
     pinMode (directionPin_M2, OUTPUT);
     servo.attach(7); //on choisit arbitrairement le pin PMW 7 pour écrire le signal de commande
     servo.write(angle); //centrer 
-    delay(15);
+    //delay(15);
 }
 
 

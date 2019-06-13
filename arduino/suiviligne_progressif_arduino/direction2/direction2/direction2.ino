@@ -1,5 +1,4 @@
 #include <Wire.h>
-
 #define SLAVE_ADDRESS 0x12 // choix de l'adresse entre 0x03 et 0x77 en hexadecimal
 #include <Servo.h>
 
@@ -12,21 +11,22 @@ int servo_pin = 10;
 
 bool arret_urgence = false; // variable booléenne d'arrêt d'urgence
 
-int vitG = 0;
-int vitD = 0;
+int  vitG = 0;
+int  vitD = 0;
 int data = 0;
-int vit = 110;
-int data_max = 100;
+int  vit = 120;
+int data_max = 200;
 int data_mil = data_max/2;
-
 int cnt = 0;
+
+
 
 
 //Variable pour stocker l'angle du servomoteur par rapport à son horizontal
 long t_servo = 0;
 int t_prec = 0;
 long t_prec_servo = 0;
-int angle = 21;  //initialisation à 21 pour que angle_prec soit au minimum et pas en dessous
+int angle = 85;  //initialisation à 21 pour que angle_prec soit au minimum et pas en dessous
 int angle_prec = angle - 1;  //connaitre la direction d'avancement du balayage
 int temp_angle;
 int temp_angle_prec;
@@ -118,26 +118,29 @@ void receiveData(int bytecount) {
       //t_prec_servo = millis();
       
       
-      data = Wire.read();//varie de 0 à 255 avec donc le milieu de l'image à 127. Cela revient à prendre en compte un pixel sur 3 dans l'image de départ
+      data = Wire.read();//varie de 0 à 255 avec donc le milieu de l'image à 127. Cela revient à prendre en compte un pixel sur 3 dans l'image de départ 
       
       if (data < data_mil) {
         
-          
+            data  = data ;
             //data est la valeur comprise entre 0 et 255 représentant l'éloignement par rapport à l'origine en pixel ramené sur un octet...
             vitG = vit - data;
             vitD = vit + data;
-            if (vitD > 255) {
+
+            if (vitD >= 255 or data >= vit) {
               vitD = 255;
               vitD = 0;
             }
 
             Direction(vitG, vitD);
          }
+         
          else {
           data = data - data_mil;
           vitG = vit + data;
           vitD = vit - data;
-            if (vitG > 255) {
+
+            if (vitG >= 255 or data>= vit ) {
               vitG = 255;
               vitD = 0;
             }
@@ -164,7 +167,7 @@ void setup() {
   pinMode (directionPin_M2, OUTPUT);
   //pinMode (servo_pin,OUTPUT);
   servo.attach(10); //on choisit arbitrairement le pin PMW 10 pour écrire le signal de commande
-  servo.write(angle); //centrer 
+  //servo.write(angle); //centrer 
 }
 
 void loop() {
