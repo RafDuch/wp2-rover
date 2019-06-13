@@ -8,15 +8,15 @@ int speedPin_M1 = 5;     //Choix de la vitesse M1
 int speedPin_M2 = 6;     //Choix de la vitesse M2
 int directionPin_M1 = 4;     //Choix du sens de rotation (avant ou arrière) moteur M1
 int directionPin_M2 = 7;     //Choix du sens de la rotation (avant ou arrière) pour le moteur M2
-int servo_pin = 2;
+int servo_pin = 10;
 
 bool arret_urgence = false; // variable booléenne d'arrêt d'urgence
 
 int vitG = 0;
 int vitD = 0;
 int data = 0;
-int vit= 100;
-int data_max = 200;
+int vit = 110;
+int data_max = 180;
 int data_mil = data_max/2;
 
 int cnt = 0;
@@ -35,12 +35,6 @@ int angle_min = 20;//angle minimal pour le trajet du servomoteur
 
 // on crée un objet de la librairie servo
 Servo servo;
-
-/*
-void sendData() {
-  int envoi =  dataReceived ;
-  Wire.write(envoi);
-}*/
 
 int ADC_moyenne(int n)
 {
@@ -164,52 +158,15 @@ void setup() {
   Serial.begin(9600);// fréquence de communication
   Wire.begin(SLAVE_ADDRESS); // l'arduino est ici définie comme escalve et ne fait que recevoir des ordres de la raspberry configurée comme maître
   Wire.onReceive(receiveData);
-//  Wire.onRequest(sendData);
   pinMode (speedPin_M1, OUTPUT);
   pinMode (speedPin_M2, OUTPUT);
   pinMode (directionPin_M1, OUTPUT);
   pinMode (directionPin_M2, OUTPUT);
   //pinMode (servo_pin,OUTPUT);
-  servo.attach(2); //on choisit arbitrairement le pin PMW 7 pour écrire le signal de commande
+  servo.attach(10); //on choisit arbitrairement le pin PMW 5 pour écrire le signal de commande
   servo.write(angle); //centrer 
 }
 
 void loop() {
-
   receiveData(0);
-  /*arret_urgence = arreturgence();
-  if (arret_urgence == false) {
-
-    while (Wire.available()) {
-      data = Wire.read();//varie de 0 à 180 avec donc le milieu de l'image à 127. Cela revient à prendre en compte un pixel sur 3 dans l'image de départ
-      
-      if (data < data_mil) {
-          
-            //data est la valeur comprise entre 0 et 180 représentant l'éloignement par rapport à l'origine en pixel ramené sur un octet...
-            vitG = abs (vit - data);
-            vitD = vit + data;
-            if (vitD > 255) {
-              vitD = 255;
-              vitD = 0;
-            }
-
-            Direction(vitG, vitD);
-         }
-         else {
-          data = data - data_mil;
-          vitG = vit + data;
-          vitD = abs (vit - data);
-            if (vitG > 255) {
-              vitG = 255;
-              vitD = 0;
-            }
-
-            Direction(vitG, vitD);
-         }
-     }
-  }
-         
-      else {
-        Direction (0, 0);
-      }*/
 }
