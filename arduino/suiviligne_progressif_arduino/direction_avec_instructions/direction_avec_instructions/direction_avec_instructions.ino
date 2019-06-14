@@ -14,8 +14,8 @@ bool arret_urgence = false; // variable booléenne d'arrêt d'urgence
 int  vitG = 0;
 int  vitD = 0;
 int data = 0;
-int  vit = 100;
-int data_max = 180;
+int  vit = 120;
+int data_max = 200;
 int data_mil = data_max/2;
 int timer = 0;
 
@@ -95,7 +95,7 @@ void receiveData(int bytecount) {
 
   
     if (arreturgence() == false) {
-      /*timer+=1;
+     /* timer+=1;
       if (timer >= 500){
       timer = 0;
       ecriture();}*/
@@ -105,10 +105,48 @@ void receiveData(int bytecount) {
     while (Wire.available()) {  
       
       data = Wire.read();//varie de 0 à 255 avec donc le milieu de l'image à 127. Cela revient à prendre en compte un pixel sur 3 dans l'image de départ 
-      
+
+if (data == 251){//s'arrêter par commande du rover
+  Direction (0,0);
+}
+
+else if (data == 252){
+  vit = vit -30;
+  data = data -30; 
+  data_max = data_max - 60;
+
+        if (data < data_mil) {
+        
+            //data est la valeur comprise entre 0 et 255 représentant l'éloignement par rapport à l'origine en pixel ramené sur un octet...
+            vitG = vit - data;
+            vitD = vit + data;
+
+            if (vitD >= 255 or data >= vit) {
+              vitD = 255;
+              vitD = 0;
+            }
+
+            Direction(vitG, vitD);
+         }
+         
+         else {
+          if (data >= data_max){
+            data = data_max;
+          }
+          data = data - data_mil;
+          vitG = vit + data;
+          vitD = vit - data;
+
+            if (vitG >= 255 or data>= vit ) {
+              vitG = 255;
+              vitD = 0;
+            }
+            Direction(vitG, vitD);
+         }
+}
+      else {
       if (data < data_mil) {
         
-            data  = data ;
             //data est la valeur comprise entre 0 et 255 représentant l'éloignement par rapport à l'origine en pixel ramené sur un octet...
             vitG = vit - data;
             vitD = vit + data;
@@ -134,6 +172,7 @@ void receiveData(int bytecount) {
          }
     }
   }
+    }
         else {
         Direction (0, 0);
       }
