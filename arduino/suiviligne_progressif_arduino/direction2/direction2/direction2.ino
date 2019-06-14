@@ -17,7 +17,7 @@ int data = 0;
 int  vit = 120;
 int data_max = 200;
 int data_mil = data_max/2;
-int cnt = 0;
+int timer = 0;
 
 
 
@@ -28,8 +28,8 @@ int t_prec = 0;
 long t_prec_servo = 0;
 int angle = 85;  //initialisation à 21 pour que angle_prec soit au minimum et pas en dessous
 int flag = 0;
-int angle_max = 170;//angle maximal pour le trajet du servomoteur (45 degré de plus que la ref)
-int angle_min = 20;//angle minimal pour le trajet du servomoteur 
+int angle_max = 140;//angle maximal pour le trajet du servomoteur (45 degré de plus que la ref)
+int angle_min = 40;//angle minimal pour le trajet du servomoteur 
 
 // on crée un objet de la librairie servo
 Servo servo;
@@ -95,12 +95,11 @@ void receiveData(int bytecount) {
 
   
     if (arreturgence() == false) {
-     /* cnt+=1;
-      if (cnt >= 500){
-      cnt = 0;
+     /* timer+=1;
+      if (timer >= 500){
+      timer = 0;
       ecriture();}
-      
-      t_prec = millis();
+
 */
 
     while (Wire.available()) {  
